@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cstring>
 #include <cstdio>
+
 #include "cfs_functions.h"
 
 using namespace std;
@@ -9,8 +10,10 @@ int main() {
 
     cfs_file *file;
 
-    size_t size;
+    size_t size=200;	//*temp
     char *line,*command;
+    line=(char*)malloc(size*sizeof(char));
+    command=(char*)malloc(size*sizeof(char));
 
     while (true){
         getline(&line, &size, stdin);

@@ -1,9 +1,4 @@
 #include "cfs_functions.h"
-#include "various.h"
-#include <cstring>
-#include <fcntl.h>
-#include <unistd.h>
-#include <cstdlib>
 
 cfs_file *cfs_workwith(char *filename) {
     int len=strlen(filename);
@@ -66,4 +61,8 @@ cfs_file *cfs_create(char *arguments) {
     if(cfs) file->setMaxFileSize(cfs);
     if(mdfn) file->setMaxDirFileNumber(mdfn);
     return file;
+}
+
+int cfs_touch(char *arguments) {
+	return 0;
 }
