@@ -2,7 +2,7 @@
 #define CFS_H
 
 #include <unistd.h>
-#include <time.h>
+
 
 using namespace std;
 
@@ -25,20 +25,12 @@ public:
 
     void setMaxDirFileNumber(unsigned int maxDirFileNumber);
 
+    int get_relative_path_dir(char *rel_path,unsigned int id);
+
     ~cfs_file();
+
 };
 
-//CFS ELEMENT
-typedef struct cfs_elmnt {
-	unsigned int nodeid;
-	char *filename;		//must be set to filename size
-	unsigned int size;	//?
-	char type;
-	unsigned int parent_nodeid;
-	time_t creation_time;
-	time_t access_time;
-	time_t modification_time;
-	//datastream??
-} MDS;
+
 
 #endif
