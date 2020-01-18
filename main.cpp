@@ -8,30 +8,34 @@ using namespace std;
 
 int main() {
 
-    cfs_file *file;
+    cfs_file *file=NULL;
 
-    size_t size=200;	//*temp
+    size_t size=200;	//_temp_
     char *line,*command;
     line=(char*)malloc(size*sizeof(char));
     command=(char*)malloc(size*sizeof(char));
 
     while (true){
         getline(&line, &size, stdin);
+        //segmentation an patiseis enter _fix_
         command=strtok(line," \t\n");
         if(strcmp(command,"cfs_workwith")==0){
-            char *filename=strtok(NULL," \t");
+            char *filename=strtok(NULL," \n");
             if(!filename || !(file=cfs_workwith(filename))){
-                cout<<"Invalid Input"<<endl;
+                cout<<">Invalid Input."<<endl;
             }
+            else
+            	file->print();
         }
         if(strcmp(command,"cfs_create")==0){
             char *arguments=strtok(NULL,"\n");
-            if(!arguments || !cfs_create(arguments)){
-                cout<<"Invalid Input"<<endl;
+            if(!arguments || !(file=cfs_create(arguments))){
+                cout<<">Invalid Input."<<endl;
             }
         }
         if(strcmp(command,"cfs_exit")==0){
-            if(file)  delete file;
+            if(file)
+                delete file;
             break;
         }
     }
