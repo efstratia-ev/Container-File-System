@@ -11,6 +11,7 @@ using namespace std;
 //CFS FILE
 class cfs_file {
     int fd;
+    unsigned int element_size;
     unsigned int current_dir;
     unsigned int block_size;
     unsigned int filename_size;
@@ -37,7 +38,7 @@ public:
 
     int exists(char *fn);
 
-    int insert(cfs_elmnt *in);
+    int insert(cfs_elmnt *in,int offset);
 
     void print();
 

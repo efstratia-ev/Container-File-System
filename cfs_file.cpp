@@ -1,5 +1,6 @@
+#include <cstring>
 #include "cfs_file.h"
-
+#include "cfs_elmnt.h"
 //CFS FILE
 cfs_file::cfs_file(int fd, unsigned int block_size, unsigned int filename_size, unsigned int max_file_size,
                    unsigned int max_dir_file_number) {
@@ -9,6 +10,7 @@ cfs_file::cfs_file(int fd, unsigned int block_size, unsigned int filename_size, 
     this->max_file_size=max_file_size;
     this->max_dir_file_number=max_dir_file_number;
     this->current_dir=0;
+    element_size=sizeof(cfs_elmnt)+filename_size;
 }
 
 cfs_file::~cfs_file() {
@@ -37,8 +39,22 @@ void cfs_file::setMaxDirFileNumber(unsigned int maxDirFileNumber) {
 
 int cfs_file::get_relative_path_dir(char *rel_path, unsigned int id) {
     char *dir=strtok(rel_path,"/");
-    unsigned int offset=4*sizeof(unsigned int)+id*(sizeof(cfs_elmnt)+block_size);
-    return 0;
+    unsigned int offset=4*sizeof(unsigned int)+id*(sizeof(cfs_elmnt)+block_size)+sizeof(cfs_elmnt);
+    unsigned int size;
+    int next_id=-1;
+    pread(fd,&size,sizeof(unsigned int),offset);
+    offset+=sizeof(unsigned int);
+    char directory[filename_size];
+    for(unsigned int i=0; i<size; i++){
+        pread(fd,&directory,filename_size,offset);
+        if(strcmp(dir,directory)==0){
+            pread(fd,&next_id,sizeof(unsigned int),offset);
+            break;
+        }
+        offset+=block_size+sizeof(unsigned int);
+    }
+    if(next_id==-1) return -1;
+    return get_relative_path_dir(strtok(NULL,'\0'),next_id);
 }
 
 void cfs_file::info_init(){
@@ -53,9 +69,9 @@ int cfs_file::exists(char *fn){
 	return 0;
 }
 
-int cfs_file::insert(cfs_elmnt *in){
-	pwrite(fd,&in,sizeof(in),4*sizeof(unsigned int));	//we write in same spot_fix_
-	return 0;
+int cfs_file::insert(cfs_elmnt *in,int offset){
+    in->writetofile(fd,offset);
+    return 0;
 }
 
 void cfs_file::print(){

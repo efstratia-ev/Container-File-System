@@ -10,7 +10,7 @@ using namespace std;
 //CFS ELEMENT
 struct cfs_elmnt {
     unsigned int nodeid;
-    char *filename;		//must be set to filename size
+    char *const filename;		//must be set to filename size
     unsigned int size;	//bytes if file,items inside if dir
     char type;
     unsigned int parent_nodeid;
@@ -21,6 +21,8 @@ struct cfs_elmnt {
     cfs_elmnt(unsigned int fnsz);
     ~cfs_elmnt();
     void print();
+    void readffomfile(int fd,int offset);
+    void writetofile(int fd,int offset);
 };
 
 #endif

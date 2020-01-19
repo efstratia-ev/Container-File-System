@@ -15,10 +15,9 @@ cfs_file *cfs_workwith(char *filename) {
     //test
     cfs_file *b=new cfs_file(fd,bs,fns,cfs,mdfn);
     cfs_elmnt *ce=new cfs_elmnt(b->getFilenameSize());
-    cfs_elmnt *a=(cfs_elmnt*)malloc(sizeof(ce));
-    pread(fd,&a,sizeof(ce),4*sizeof(unsigned int));
-    a->print();
-    //return new cfs_file(fd,bs,fns,cfs,mdfn);
+    ce->readffomfile(fd,4* sizeof(unsigned int));
+    ce->print();
+    delete ce;
     return b;
 }
 
@@ -73,14 +72,17 @@ cfs_file *cfs_create(char *arguments) {
     //create root dir
     cfs_elmnt *ce=new cfs_elmnt(file->getFilenameSize());
     ce->nodeid=0;
-	strcpy(ce->filename,"/");	// /0?
+	strcpy(ce->filename,"/");
+    ce->filename[1]='\0';
 	ce->size=0;
 	ce->type='d';
 	ce->parent_nodeid=0;
 	ce->creation_time=time(NULL);
 	ce->access_time=time(NULL);
 	ce->modification_time=time(NULL);
-	file->insert(ce);
+	ce->print();
+	file->insert(ce,4*sizeof(unsigned int));
+	delete ce;
     return file;
 }
 
