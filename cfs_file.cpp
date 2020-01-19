@@ -27,6 +27,10 @@ void cfs_file::setMaxFileSize(unsigned int maxFileSize) {
     max_file_size = maxFileSize;
 }
 
+unsigned int cfs_file::getFilenameSize() {
+	return filename_size;
+}
+
 void cfs_file::setMaxDirFileNumber(unsigned int maxDirFileNumber) {
     max_dir_file_number = maxDirFileNumber;
 }
@@ -38,14 +42,19 @@ int cfs_file::get_relative_path_dir(char *rel_path, unsigned int id) {
 }
 
 void cfs_file::info_init(){
-	write(fd,&block_size,sizeof(unsigned int));
-	write(fd,&filename_size,sizeof(unsigned int));
-	write(fd,&max_file_size,sizeof(unsigned int));
-	write(fd,&max_dir_file_number,sizeof(unsigned int));
+	pwrite(fd,&block_size,sizeof(unsigned int),0);
+	pwrite(fd,&filename_size,sizeof(unsigned int),sizeof(unsigned int));
+	pwrite(fd,&max_file_size,sizeof(unsigned int),2*sizeof(unsigned int));
+	pwrite(fd,&max_dir_file_number,sizeof(unsigned int),3*sizeof(unsigned int));
 }
 
 int cfs_file::exists(char *fn){
 	//search in current directory if file exists
+	return 0;
+}
+
+int cfs_file::insert(cfs_elmnt *in){
+	pwrite(fd,&in,sizeof(in),4*sizeof(unsigned int));	//we write in same spot_fix_
 	return 0;
 }
 

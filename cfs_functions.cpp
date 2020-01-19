@@ -8,11 +8,18 @@ cfs_file *cfs_workwith(char *filename) {
     fd = open(filename,O_RDWR);
     if(fd==-1) return NULL;
     unsigned int bs,fns,cfs,mdfn;
-    read(fd,&bs,sizeof(unsigned int));
-    read(fd,&fns,sizeof(unsigned int));
-    read(fd,&cfs,sizeof(unsigned int));
-    read(fd,&mdfn,sizeof(unsigned int));
-    return new cfs_file(fd,bs,fns,cfs,mdfn);
+    pread(fd,&bs,sizeof(unsigned int),0);
+    pread(fd,&fns,sizeof(unsigned int),sizeof(unsigned int));
+    pread(fd,&cfs,sizeof(unsigned int),2*sizeof(unsigned int));
+    pread(fd,&mdfn,sizeof(unsigned int),3*sizeof(unsigned int));
+    //test
+    cfs_file *b=new cfs_file(fd,bs,fns,cfs,mdfn);
+    cfs_elmnt *ce=new cfs_elmnt(b->getFilenameSize());
+    cfs_elmnt *a=(cfs_elmnt*)malloc(sizeof(ce));
+    pread(fd,&a,sizeof(ce),4*sizeof(unsigned int));
+    a->print();
+    //return new cfs_file(fd,bs,fns,cfs,mdfn);
+    return b;
 }
 
 cfs_file *cfs_create(char *arguments) {
@@ -61,7 +68,19 @@ cfs_file *cfs_create(char *arguments) {
     if(fns) file->setFilenameSize(fns);
     if(cfs) file->setMaxFileSize(cfs);
     if(mdfn) file->setMaxDirFileNumber(mdfn);
+    //set metadata
     file->info_init();
+    //create root dir
+    cfs_elmnt *ce=new cfs_elmnt(file->getFilenameSize());
+    ce->nodeid=0;
+	strcpy(ce->filename,"/");	// /0?
+	ce->size=0;
+	ce->type='d';
+	ce->parent_nodeid=0;
+	ce->creation_time=time(NULL);
+	ce->access_time=time(NULL);
+	ce->modification_time=time(NULL);
+	file->insert(ce);
     return file;
 }
 
@@ -79,9 +98,12 @@ int cfs_touch(cfs_file f_info,char *arguments) {
         word=strtok(NULL," \t");
     }
     while(word){
-    	if(!exists(word)){
-    		cfs_elmnt *ce=new cfs_elmnt(f_info->filename_size);
-			strcpy(cfs_elmnt->filename,word,f_info->filename_size);
+    	if(!f_info.exists(word)){	//if the file doesnt exist create it
+    		cfs_elmnt *ce=new cfs_elmnt(f_info.getFilenameSize());
+			strcpy(ce->filename,word);
+
+    	}
+    	else{				//if the file exists alter its timestamps
 
     	}
     	word=strtok(NULL," \t\n");

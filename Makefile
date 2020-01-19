@@ -21,10 +21,10 @@ main.o: main.cpp
 clean:
 	rm *.o cfs
 
-git_send:
+push:
 	git add *
 	git commit -m "notes: -"
 	git push origin master
 
-git_get:
+pull:
 	git pull

@@ -25,6 +25,8 @@ public:
 
     void setFilenameSize(unsigned int filenameSize);
 
+    unsigned int getFilenameSize();
+
     void setMaxFileSize(unsigned int maxFileSize);
 
     void setMaxDirFileNumber(unsigned int maxDirFileNumber);
@@ -34,6 +36,8 @@ public:
     void info_init();
 
     int exists(char *fn);
+
+    int insert(cfs_elmnt *in);
 
     void print();
 
