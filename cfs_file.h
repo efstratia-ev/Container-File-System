@@ -24,6 +24,10 @@ public:
 
     void setBlockSize(unsigned int blockSize);
 
+    void setCurrentDir(unsigned int dir);
+
+    unsigned int getCurrentDir();
+
     void setFilenameSize(unsigned int filenameSize);
 
     unsigned int getFilenameSize();
@@ -39,6 +43,8 @@ public:
     int exists(char *fn);
 
     int insert(cfs_elmnt *in,int offset);
+
+    int locate_next_avail();
 
     void print();
 

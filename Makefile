@@ -23,7 +23,7 @@ clean:
 
 push:
 	git add *
-	git commit -m "notes: -"
+	git commit -m "cfs_touch kai cfs_workwith. epomeno vima: DATA BLOCKS"
 	git push origin master
 
 pull:

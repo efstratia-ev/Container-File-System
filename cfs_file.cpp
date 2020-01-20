@@ -21,6 +21,14 @@ void cfs_file::setBlockSize(unsigned int blockSize) {
     block_size = blockSize;
 }
 
+void setCurrentDir(unsigned int dir){
+	current_dir=dir;
+}
+
+unsigned int getCurrentDir(){
+	return current_dir;
+}
+
 void cfs_file::setFilenameSize(unsigned int filenameSize) {
     filename_size = filenameSize;
 }
@@ -54,7 +62,7 @@ int cfs_file::get_relative_path_dir(char *rel_path, unsigned int id) {
         offset+=block_size+sizeof(unsigned int);
     }
     if(next_id==-1) return -1;
-    return get_relative_path_dir(strtok(NULL,'\0'),next_id);
+    return get_relative_path_dir(strtok(NULL,"\0"),next_id);
 }
 
 void cfs_file::info_init(){
@@ -64,7 +72,7 @@ void cfs_file::info_init(){
 	pwrite(fd,&max_dir_file_number,sizeof(unsigned int),3*sizeof(unsigned int));
 }
 
-int cfs_file::exists(char *fn){
+int cfs_file::exists(char *fn){		//TODO
 	//search in current directory if file exists
 	return 0;
 }
@@ -72,6 +80,11 @@ int cfs_file::exists(char *fn){
 int cfs_file::insert(cfs_elmnt *in,int offset){
     in->writetofile(fd,offset);
     return 0;
+}
+
+int cfs_file::locate_next_avail(){		//TODO
+	//find first empty spot in file
+	return 2;
 }
 
 void cfs_file::print(){

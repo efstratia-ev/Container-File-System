@@ -25,4 +25,10 @@ struct cfs_elmnt {
     void writetofile(int fd,int offset);
 };
 
+struct cfs_in_dir {
+	char *const filename;
+	char type;
+	unsigned int nodeid;
+}
+
 #endif
