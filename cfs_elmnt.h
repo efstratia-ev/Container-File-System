@@ -29,6 +29,6 @@ struct cfs_in_dir {
 	char *const filename;
 	char type;
 	unsigned int nodeid;
-}
+};
 
 #endif

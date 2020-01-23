@@ -16,7 +16,7 @@ cfs_file *cfs_workwith(char *filename) {
     cfs_file *b=new cfs_file(fd,bs,fns,cfs,mdfn);
     cfs_elmnt *ce=new cfs_elmnt(b->getFilenameSize());
     ce->readffomfile(fd,4*sizeof(unsigned int));	//read '/' node
-    setCurrentDir(ce->nodeid);
+    b->setCurrentDir(ce->nodeid);
     ce->print();
     delete ce;
     return b;
@@ -87,7 +87,7 @@ cfs_file *cfs_create(char *arguments) {
     return file;
 }
 
-int cfs_touch(cfs_file f_info,char *arguments) {
+int cfs_touch(cfs_file *f_info,char *arguments) {
 	char *word=strtok(arguments," \t");
     bool a=false,m=false;
     while(word){
@@ -101,19 +101,19 @@ int cfs_touch(cfs_file f_info,char *arguments) {
         word=strtok(NULL," \t");
     }
     while(word){
-    	if(!f_info.exists(word)){	//if the file doesnt exist create it
-    		cfs_elmnt *ce=new cfs_elmnt(f_info.getFilenameSize());
-    		ce->nodeid=f_info.locate_next_avail();
+    	if(!f_info->exists(word)){	//if the file doesnt exist create it
+    		cfs_elmnt *ce=new cfs_elmnt(f_info->getFilenameSize());
+    		ce->nodeid=f_info->locate_next_avail();
 			strcpy(ce->filename,word);
 			ce->filename[strlen(word)]='\0';
 			ce->size=0;
 			ce->type='f';
-			ce->parent_nodeid=f_info.getCurrentdir();
+			ce->parent_nodeid=f_info->getCurrentDir();
 			ce->creation_time=time(NULL);
 			ce->access_time=time(NULL);
 			ce->modification_time=time(NULL);
 			ce->print();
-			file->insert(ce,4*sizeof(unsigned int));
+			f_info->insert(ce,4*sizeof(unsigned int));
 
     	}
     	else{				//if the file exists alter its timestamps

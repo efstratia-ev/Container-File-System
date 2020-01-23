@@ -14,6 +14,6 @@ cfs_file *cfs_workwith(char *filename);
 
 cfs_file *cfs_create(char *arguments);
 
-int cfs_touch(char *arguments);
+int cfs_touch(cfs_file *f_info,char *arguments);
 
 #endif

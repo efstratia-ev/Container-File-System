@@ -17,8 +17,8 @@ int main() {
 
     while (true){
         getline(&line, &size, stdin);
-        //segmentation an patiseis enter _fix_
         command=strtok(line," \t\n");
+        if(!command) continue; //eftiaxa to seg fault
         if(strcmp(command,"cfs_workwith")==0){
             char *filename=strtok(NULL," \n");
             if(!filename || !(file=cfs_workwith(filename))){
@@ -39,6 +39,5 @@ int main() {
             break;
         }
     }
-
     return 0;
 }

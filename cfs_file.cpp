@@ -21,14 +21,6 @@ void cfs_file::setBlockSize(unsigned int blockSize) {
     block_size = blockSize;
 }
 
-void setCurrentDir(unsigned int dir){
-	current_dir=dir;
-}
-
-unsigned int getCurrentDir(){
-	return current_dir;
-}
-
 void cfs_file::setFilenameSize(unsigned int filenameSize) {
     filename_size = filenameSize;
 }
@@ -92,4 +84,12 @@ void cfs_file::print(){
 	cout<<"fns is "<<filename_size<<endl;
 	cout<<"cfs is "<<max_file_size<<endl;
 	cout<<"mdfn is "<<max_dir_file_number<<endl;
+}
+
+void cfs_file::setCurrentDir(unsigned int dir) {
+    current_dir=dir;
+}
+
+unsigned int cfs_file::getCurrentDir() {
+    return current_dir;
 }
