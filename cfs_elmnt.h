@@ -18,7 +18,8 @@ struct cfs_elmnt {
     time_t access_time;
     time_t modification_time;
 
-    cfs_elmnt(unsigned int fnsz);
+    cfs_elmnt(unsigned int fnsz, char *const filename, unsigned int size, char type, unsigned int parentNodeid,time_t time);
+
     ~cfs_elmnt();
     void print();
     void readffomfile(int fd,int offset);
@@ -30,5 +31,6 @@ struct cfs_in_dir {
 	char type;
 	unsigned int nodeid;
 };
+
 
 #endif

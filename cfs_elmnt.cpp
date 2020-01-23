@@ -1,7 +1,14 @@
 #include <unistd.h>
 #include "cfs_elmnt.h"
 
-cfs_elmnt::cfs_elmnt(unsigned int fnsz):filename(new char[fnsz+1]){
+
+cfs_elmnt::cfs_elmnt(unsigned int fnsz, char *const filename, unsigned int size, char type, unsigned int parentNodeid,time_t time):filename(new char[fnsz+1]){
+    strcpy(this->filename,filename);
+    this->size=size;
+    this->type=type;
+    this->creation_time=time;
+    this->access_time=time;
+    this->modification_time=time;
 }
 cfs_elmnt::~cfs_elmnt(){
 	delete filename;

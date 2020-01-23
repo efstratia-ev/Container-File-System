@@ -7,19 +7,9 @@ cfs_file *cfs_workwith(char *filename) {
     int fd;
     fd = open(filename,O_RDWR);
     if(fd==-1) return NULL;
-    unsigned int bs,fns,cfs,mdfn;
-    pread(fd,&bs,sizeof(unsigned int),0);
-    pread(fd,&fns,sizeof(unsigned int),sizeof(unsigned int));
-    pread(fd,&cfs,sizeof(unsigned int),2*sizeof(unsigned int));
-    pread(fd,&mdfn,sizeof(unsigned int),3*sizeof(unsigned int));
-    //test
-    cfs_file *b=new cfs_file(fd,bs,fns,cfs,mdfn);
-    cfs_elmnt *ce=new cfs_elmnt(b->getFilenameSize());
-    ce->readffomfile(fd,4*sizeof(unsigned int));	//read '/' node
-    b->setCurrentDir(ce->nodeid);
-    ce->print();
-    delete ce;
-    return b;
+    cfs_file *current_file=new cfs_file(fd);
+    current_file->get_info();
+    return current_file;
 }
 
 cfs_file *cfs_create(char *arguments) {
@@ -64,6 +54,7 @@ cfs_file *cfs_create(char *arguments) {
     fd = open(word,O_RDWR | O_CREAT, 00755);
     if(fd==-1) return NULL;
     cfs_file *file=new cfs_file(fd);
+    file->set_info();
     if(bs) file->setBlockSize(bs);
     if(fns) file->setFilenameSize(fns);
     if(cfs) file->setMaxFileSize(cfs);
@@ -71,18 +62,9 @@ cfs_file *cfs_create(char *arguments) {
     //set metadata
     file->info_init();
     //create root dir
-    cfs_elmnt *ce=new cfs_elmnt(file->getFilenameSize());
-    ce->nodeid=0;
-	strcpy(ce->filename,"/");
-    ce->filename[1]='\0';
-	ce->size=0;
-	ce->type='d';
-	ce->parent_nodeid=0;
-	ce->creation_time=time(NULL);
-	ce->access_time=time(NULL);
-	ce->modification_time=time(NULL);
+    cfs_elmnt *ce=new cfs_elmnt(0,"/",0,'d',0,time(NULL));
 	ce->print();
-	file->insert(ce,4*sizeof(unsigned int));
+	file->insert_directory(ce);
 	delete ce;
     return file;
 }
@@ -102,19 +84,9 @@ int cfs_touch(cfs_file *f_info,char *arguments) {
     }
     while(word){
     	if(!f_info->exists(word)){	//if the file doesnt exist create it
-    		cfs_elmnt *ce=new cfs_elmnt(f_info->getFilenameSize());
-    		ce->nodeid=f_info->locate_next_avail();
-			strcpy(ce->filename,word);
-			ce->filename[strlen(word)]='\0';
-			ce->size=0;
-			ce->type='f';
-			ce->parent_nodeid=f_info->getCurrentDir();
-			ce->creation_time=time(NULL);
-			ce->access_time=time(NULL);
-			ce->modification_time=time(NULL);
-			ce->print();
-			f_info->insert(ce,4*sizeof(unsigned int));
-
+    		cfs_elmnt *ce=new cfs_elmnt(f_info->getFilenameSize(),word,0,'f',f_info->getCurrentDir(),time(NULL));
+			f_info->insert_file(ce); //den dineis thesi vriskei moni tis
+			delete ce;
     	}
     	else{				//if the file exists alter its timestamps
 

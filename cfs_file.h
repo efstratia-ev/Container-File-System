@@ -9,16 +9,20 @@
 using namespace std;
 
 //CFS FILE
-class cfs_file {
+class cfs_file{
     int fd;
     unsigned int element_size;
+    unsigned int element_number;
+    unsigned int empty_spot;
     unsigned int current_dir;
     unsigned int block_size;
     unsigned int filename_size;
     unsigned int max_file_size;
     unsigned int max_dir_file_number;
 public:
-    cfs_file(int fd,unsigned int block_size=1024,unsigned int filename_size=20,unsigned int max_file_size=1024,unsigned int max_dir_file_number=50);
+    cfs_file(int fd);
+
+    void set_info(unsigned int block_size=1024,unsigned int filename_size=20,unsigned int max_file_size=1024,unsigned int max_dir_file_number=50);
 
     ~cfs_file();
 
@@ -40,18 +44,21 @@ public:
 
     void info_init();
 
+    void get_info();
+
     int exists(char *fn);
 
-    int insert(cfs_elmnt *in,int offset);
-
-    int locate_next_avail();
+    unsigned int insert_element(cfs_elmnt *in);
 
     void print();
 
-    void create_dir(unsigned int){
+    void increase_element_number();
 
-    }
+    unsigned int get_next_empty_spot();
 
+    void insert_directory(cfs_elmnt *in);
+
+    void insert_file(cfs_elmnt *in);
 };
 
 
