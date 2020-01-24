@@ -189,7 +189,7 @@ void cfs_file::setCurrentDir(unsigned int currentDir) {
 
 void cfs_file::move_to_parent_dir() {
     if(current_dir==0) return;
-    int offset=6* sizeof(unsigned int)+current_dir*(filename_size+block_size);
+    int offset=6* sizeof(unsigned int)+current_dir*(element_size+block_size);
     cfs_elmnt *elmnt=new cfs_elmnt(filename_size);
     elmnt->readffomfile(fd,offset,filename_size);
     current_dir=elmnt->parent_nodeid;
@@ -197,7 +197,7 @@ void cfs_file::move_to_parent_dir() {
 }
 
 char cfs_file::get_element_type(unsigned int id) {
-    int offset=6*sizeof(unsigned int)+id*(filename_size+block_size);
+    int offset=6*sizeof(unsigned int)+id*(element_size+block_size);
     cfs_elmnt elmnt(filename_size);
     elmnt.readffomfile(fd,offset,filename_size);
     return elmnt.type;
