@@ -11,7 +11,7 @@ cfs_elmnt::cfs_elmnt(unsigned int fnsz, char *const filename, unsigned int size,
     this->modification_time=time;
 }
 cfs_elmnt::~cfs_elmnt(){
-	delete filename;
+	delete[] filename;
 }
 
 void cfs_elmnt::print(){
@@ -32,9 +32,9 @@ void cfs_elmnt::print(){
     cout<<"m_time: "<<time_str<<endl;
 }
 
-void cfs_elmnt::readffomfile(int fd,int offset) {
+void cfs_elmnt::readffomfile(int fd,int offset,unsigned int filename_size) {
     offset+=pread(fd,&nodeid,sizeof(unsigned int),offset);
-    offset+=pread(fd,filename,sizeof(filename),offset);
+    offset+=pread(fd,filename,filename_size,offset);
     offset+=pread(fd,&size,sizeof(unsigned int),offset);
     offset+=pread(fd,&type,sizeof(char),offset);
     offset+=pread(fd,&parent_nodeid,sizeof(unsigned int),offset);
@@ -43,9 +43,9 @@ void cfs_elmnt::readffomfile(int fd,int offset) {
     pread(fd,&modification_time,sizeof(time_t),offset);
 }
 
-void cfs_elmnt::writetofile(int fd,int offset) {
+void cfs_elmnt::writetofile(int fd,int offset,unsigned int filename_size) {
     offset+=pwrite(fd,&nodeid,sizeof(unsigned int),offset);
-    offset+=pwrite(fd,filename,sizeof(filename),offset);
+    offset+=pwrite(fd,filename,filename_size,offset);
     offset+=pwrite(fd,&size,sizeof(unsigned int),offset);
     offset+=pwrite(fd,&type,sizeof(char),offset);
     offset+=pwrite(fd,&parent_nodeid,sizeof(unsigned int),offset);
@@ -53,3 +53,5 @@ void cfs_elmnt::writetofile(int fd,int offset) {
     offset+=pwrite(fd,&access_time,sizeof(time_t),offset);
     pwrite(fd,&modification_time,sizeof(time_t),offset);
 }
+
+cfs_elmnt::cfs_elmnt(unsigned int fnsz) :filename(new char[fnsz+1]){}

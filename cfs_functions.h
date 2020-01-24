@@ -16,4 +16,8 @@ cfs_file *cfs_create(char *arguments);
 
 int cfs_touch(cfs_file *f_info,char *arguments);
 
+bool cfs_mkdir(cfs_file *f_info,char *arguments);
+
+bool cfs_cd(cfs_file *f_info, char *arguments);
+
 #endif

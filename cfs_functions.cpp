@@ -83,7 +83,7 @@ int cfs_touch(cfs_file *f_info,char *arguments) {
         word=strtok(NULL," \t");
     }
     while(word){
-    	if(!f_info->exists(word)){	//if the file doesnt exist create it
+    	if(!f_info->exists(word,f_info->getCurrentDir())){	//if the file doesnt exist create it
     		cfs_elmnt *ce=new cfs_elmnt(f_info->getFilenameSize(),word,0,'f',f_info->getCurrentDir(),time(NULL));
 			f_info->insert_file(ce); //den dineis thesi vriskei moni tis
 			delete ce;
@@ -94,4 +94,42 @@ int cfs_touch(cfs_file *f_info,char *arguments) {
     	word=strtok(NULL," \t\n");
     }
 	return 0;
+}
+
+bool cfs_mkdir(cfs_file *f_info, char *arguments) {
+    char *dir=strtok(arguments," \t");
+    bool succes=false;
+    while(dir){
+        cfs_elmnt *element=new cfs_elmnt(f_info->getFilenameSize(),dir,0,'d',f_info->getCurrentDir(),time(NULL));
+        succes=f_info->insert_directory(element);
+        delete element;
+        dir=strtok(NULL," \t");
+    }
+    return succes;
+}
+
+bool cfs_cd(cfs_file *f_info, char *arguments){
+    unsigned int dir;
+    char *next_dir;
+    if(strcmp(arguments,".")==0) return true;
+    else if(strcmp(arguments,"..")==0){
+        f_info->move_to_parent_dir();
+        return true;
+    }
+    if(arguments[0]=='/'){
+        dir=0;
+        strtok(arguments,"/");
+        next_dir=strtok(NULL,"/");
+    }
+    else{
+        dir=f_info->getCurrentDir();
+        next_dir=strtok(arguments,"/");
+    }
+    while(next_dir){
+        dir=f_info->get_directory_id(dir,next_dir);
+        if(dir==0) return false;
+        next_dir=strtok(NULL,"/");
+    }
+    f_info->setCurrentDir(dir);
+    return true;
 }

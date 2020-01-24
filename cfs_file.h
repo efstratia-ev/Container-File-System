@@ -28,8 +28,6 @@ public:
 
     void setBlockSize(unsigned int blockSize);
 
-    void setCurrentDir(unsigned int dir);
-
     unsigned int getCurrentDir();
 
     void setFilenameSize(unsigned int filenameSize);
@@ -46,7 +44,7 @@ public:
 
     void get_info();
 
-    int exists(char *fn);
+    bool exists(char *fn, unsigned int dir);
 
     unsigned int insert_element(cfs_elmnt *in);
 
@@ -56,9 +54,20 @@ public:
 
     unsigned int get_next_empty_spot();
 
-    void insert_directory(cfs_elmnt *in);
+    bool insert_directory(cfs_elmnt *in);
 
     void insert_file(cfs_elmnt *in);
+
+    unsigned int get_directory_id(unsigned int parent_dir,char *dir_name);
+
+    void move_to_parent_dir();
+
+    void setCurrentDir(unsigned int currentDir);
+
+    char get_element_type(unsigned int id);
+
+    bool dir_is_full(unsigned int id);
+
 };
 
 

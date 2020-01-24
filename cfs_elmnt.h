@@ -18,12 +18,12 @@ struct cfs_elmnt {
     time_t access_time;
     time_t modification_time;
 
+    cfs_elmnt(unsigned int fnsz);
     cfs_elmnt(unsigned int fnsz, char *const filename, unsigned int size, char type, unsigned int parentNodeid,time_t time);
-
     ~cfs_elmnt();
     void print();
-    void readffomfile(int fd,int offset);
-    void writetofile(int fd,int offset);
+    void readffomfile(int fd,int offset,unsigned int filename_size);
+    void writetofile(int fd,int offset,unsigned int filename_size);
 };
 
 struct cfs_in_dir {

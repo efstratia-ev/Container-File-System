@@ -18,8 +18,9 @@ int main() {
     while (true){
         getline(&line, &size, stdin);
         command=strtok(line," \t\n");
-        if(!command) continue; //eftiaxa to seg fault
+        if(!command) continue;
         if(strcmp(command,"cfs_workwith")==0){
+            delete file;
             char *filename=strtok(NULL," \n");
             if(!filename || !(file=cfs_workwith(filename))){
                 cout<<">Invalid Input."<<endl;
@@ -28,8 +29,21 @@ int main() {
             	file->print();
         }
         if(strcmp(command,"cfs_create")==0){
+            delete file;
             char *arguments=strtok(NULL,"\n");
             if(!arguments || !(file=cfs_create(arguments))){
+                cout<<">Invalid Input."<<endl;
+            }
+        }
+        if(strcmp(command,"cfs_mkdir")==0 && file){
+            char *arguments=strtok(NULL,"\n");
+            if(!arguments || !cfs_mkdir(file,arguments)){
+                cout<<">Invalid Input."<<endl;
+            }
+        }
+        if(strcmp(command,"cfs_cd")==0 && file){
+            char *arguments=strtok(NULL,"\n");
+            if(!arguments || !cfs_cd(file,arguments)){
                 cout<<">Invalid Input."<<endl;
             }
         }
