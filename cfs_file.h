@@ -44,7 +44,7 @@ public:
 
     void get_info();
 
-    bool exists(char *fn, unsigned int dir);
+    bool exists(char *fn, unsigned int dir, unsigned int &to_id);
 
     unsigned int insert_element(cfs_elmnt *in);
 
@@ -68,6 +68,7 @@ public:
 
     bool dir_is_full(unsigned int id);
 
+    int reset_timestamps(unsigned int id,bool a,bool m);
 };
 
 

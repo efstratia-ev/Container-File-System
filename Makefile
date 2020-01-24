@@ -23,7 +23,7 @@ clean:
 
 push:
 	git add *
-	git commit -m "cfs_touch kai cfs_workwith. epomeno vima: DATA BLOCKS"
+	git commit -m "cfs_touch & reset_timestamps. na milisoume gia cfs_file.cpp ln148"
 	git push origin master
 
 pull:

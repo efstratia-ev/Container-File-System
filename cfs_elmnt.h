@@ -22,7 +22,7 @@ struct cfs_elmnt {
     cfs_elmnt(unsigned int fnsz, char *const filename, unsigned int size, char type, unsigned int parentNodeid,time_t time);
     ~cfs_elmnt();
     void print();
-    void readffomfile(int fd,int offset,unsigned int filename_size);
+    void readfromfile(int fd,int offset,unsigned int filename_size);
     void writetofile(int fd,int offset,unsigned int filename_size);
 };
 

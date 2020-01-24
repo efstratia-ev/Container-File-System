@@ -32,7 +32,7 @@ void cfs_elmnt::print(){
     cout<<"m_time: "<<time_str<<endl;
 }
 
-void cfs_elmnt::readffomfile(int fd,int offset,unsigned int filename_size) {
+void cfs_elmnt::readfromfile(int fd,int offset,unsigned int filename_size) {
     offset+=pread(fd,&nodeid,sizeof(unsigned int),offset);
     offset+=pread(fd,filename,filename_size,offset);
     offset+=pread(fd,&size,sizeof(unsigned int),offset);

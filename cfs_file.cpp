@@ -83,7 +83,7 @@ void cfs_file::get_info(){
     element_size=sizeof(cfs_elmnt)+filename_size;
 }
 
-bool cfs_file::exists(char *fn, unsigned int dir){
+bool cfs_file::exists(char *fn, unsigned int dir, unsigned int &to_id){
     int offset=6*sizeof(unsigned int)+dir*(element_size+block_size)+element_size;
     int counter;
     pread(fd,&counter,sizeof(unsigned int),offset);
@@ -96,6 +96,7 @@ bool cfs_file::exists(char *fn, unsigned int dir){
         pread(fd,filename,filename_size,offset);
         offset+=filename_size;
         if(strcmp(fn,filename)==0){
+        	to_id=id;
             delete[] filename;
             return true;
         }
@@ -144,13 +145,14 @@ void cfs_file::increase_element_number() {
 unsigned int cfs_file::get_next_empty_spot() {
     unsigned int item=empty_spot;
     int offset=6*sizeof(unsigned int)+empty_spot*(element_size+block_size);
-    pread(fd,&empty_spot,sizeof(unsigned int),offset);
+    pread(fd,&empty_spot,sizeof(unsigned int),offset);	//kalytera na kanoume readfromfile krkr
     pwrite(fd,&empty_spot,sizeof(unsigned int),sizeof(unsigned int));
     return item;
 }
 
 bool cfs_file::insert_directory(cfs_elmnt *in) {
-    if(dir_is_full(in->parent_nodeid) || exists(in->filename,in->parent_nodeid)) return false;
+	unsigned int none;
+    if(dir_is_full(in->parent_nodeid) || exists(in->filename,in->parent_nodeid,none)) return false;
     unsigned int elements=0,spot=insert_element(in);
     int offset=6*sizeof(unsigned int)+spot*(element_size+block_size)+element_size;
     pwrite(fd,&elements,sizeof(unsigned int),offset);
@@ -191,7 +193,7 @@ void cfs_file::move_to_parent_dir() {
     if(current_dir==0) return;
     int offset=6* sizeof(unsigned int)+current_dir*(element_size+block_size);
     cfs_elmnt *elmnt=new cfs_elmnt(filename_size);
-    elmnt->readffomfile(fd,offset,filename_size);
+    elmnt->readfromfile(fd,offset,filename_size);
     current_dir=elmnt->parent_nodeid;
     delete elmnt;
 }
@@ -199,7 +201,7 @@ void cfs_file::move_to_parent_dir() {
 char cfs_file::get_element_type(unsigned int id) {
     int offset=6*sizeof(unsigned int)+id*(element_size+block_size);
     cfs_elmnt elmnt(filename_size);
-    elmnt.readffomfile(fd,offset,filename_size);
+    elmnt.readfromfile(fd,offset,filename_size);
     return elmnt.type;
 }
 
@@ -210,5 +212,21 @@ bool cfs_file::dir_is_full(unsigned int id) {
     return elements==max_dir_file_number;
 }
 
-
+int cfs_file::reset_timestamps(unsigned int id,bool a,bool m){
+	cfs_elmnt *ce=new cfs_elmnt(filename_size);
+	ce->readfromfile(fd,6*sizeof(unsigned int)+id*(element_size+block_size),filename_size);
+	if(ce->type!='f')
+		return -1;
+	if(!(a||m)){
+		ce->access_time=time(NULL);
+		ce->modification_time=time(NULL);
+	}
+	else if(a)
+		ce->access_time=time(NULL);
+	else
+		ce->modification_time=time(NULL);
+	ce->writetofile(fd,6*sizeof(unsigned int)+id*(element_size+block_size),filename_size);
+	delete ce;
+	return 0;
+}
 

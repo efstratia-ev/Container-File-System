@@ -62,7 +62,7 @@ cfs_file *cfs_create(char *arguments) {
     //set metadata
     file->info_init();
     //create root dir
-    cfs_elmnt *ce=new cfs_elmnt(0,"/",0,'d',0,time(NULL));
+    cfs_elmnt *ce=new cfs_elmnt(0,(char*)"/",0,'d',0,time(NULL));
 	ce->print();
 	file->insert_directory(ce);
 	delete ce;
@@ -71,6 +71,7 @@ cfs_file *cfs_create(char *arguments) {
 
 int cfs_touch(cfs_file *f_info,char *arguments) {
 	char *word=strtok(arguments," \t");
+	unsigned int file_id=0;
     bool a=false,m=false;
     while(word){
         if(strcmp(word,"-a")==0){
@@ -83,13 +84,13 @@ int cfs_touch(cfs_file *f_info,char *arguments) {
         word=strtok(NULL," \t");
     }
     while(word){
-    	if(!f_info->exists(word,f_info->getCurrentDir())){	//if the file doesnt exist create it
+    	if(!f_info->exists(word,f_info->getCurrentDir(),file_id)){	//if the file doesnt exist create it
     		cfs_elmnt *ce=new cfs_elmnt(f_info->getFilenameSize(),word,0,'f',f_info->getCurrentDir(),time(NULL));
 			f_info->insert_file(ce); //den dineis thesi vriskei moni tis
 			delete ce;
     	}
     	else{				//if the file exists alter its timestamps
-
+    		f_info->reset_timestamps(file_id,a,m);
     	}
     	word=strtok(NULL," \t\n");
     }
