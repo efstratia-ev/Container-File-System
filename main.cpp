@@ -28,26 +28,29 @@ int main() {
             else
             	file->print();
         }
-        if(strcmp(command,"cfs_create")==0){
+        else if(strcmp(command,"cfs_create")==0){
             delete file;
             char *arguments=strtok(NULL,"\n");
             if(!arguments || !(file=cfs_create(arguments))){
                 cout<<">Invalid Input."<<endl;
             }
         }
-        if(strcmp(command,"cfs_mkdir")==0 && file){
+        else if(strcmp(command,"cfs_mkdir")==0 && file){
             char *arguments=strtok(NULL,"\n");
             if(!arguments || !cfs_mkdir(file,arguments)){
                 cout<<">Invalid Input."<<endl;
             }
         }
-        if(strcmp(command,"cfs_cd")==0 && file){
+        else if(strcmp(command,"cfs_cd")==0 && file){
             char *arguments=strtok(NULL,"\n");
             if(!arguments || !cfs_cd(file,arguments)){
                 cout<<">Invalid Input."<<endl;
             }
         }
-        if(strcmp(command,"cfs_exit")==0){
+        else if(strcmp(command,"cfs_pwd")==0){
+            cfs_pwd(file);
+        }
+        else if(strcmp(command,"cfs_exit")==0){
             if(file)
                 delete file;
             break;

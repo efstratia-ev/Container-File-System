@@ -20,4 +20,6 @@ bool cfs_mkdir(cfs_file *f_info,char *arguments);
 
 bool cfs_cd(cfs_file *f_info, char *arguments);
 
+void cfs_pwd(cfs_file *f_info);
+
 #endif

@@ -152,7 +152,7 @@ unsigned int cfs_file::get_next_empty_spot() {
 
 bool cfs_file::insert_directory(cfs_elmnt *in) {
 	unsigned int none;
-    if(dir_is_full(in->parent_nodeid) || exists(in->filename,in->parent_nodeid,none)) return false;
+    if(element_number>0 && (dir_is_full(in->parent_nodeid) || exists(in->filename,in->parent_nodeid,none))) return false;
     unsigned int elements=0,spot=insert_element(in);
     int offset=6*sizeof(unsigned int)+spot*(element_size+block_size)+element_size;
     pwrite(fd,&elements,sizeof(unsigned int),offset);
@@ -228,5 +228,15 @@ int cfs_file::reset_timestamps(unsigned int id,bool a,bool m){
 	ce->writetofile(fd,6*sizeof(unsigned int)+id*(element_size+block_size),filename_size);
 	delete ce;
 	return 0;
+}
+
+void cfs_file::print_directory(unsigned int id) {
+    cfs_elmnt elmnt(filename_size);
+    elmnt.readfromfile(fd,6*sizeof(unsigned int)+id*(element_size+block_size),filename_size);
+    if(id!=0){
+        print_directory(elmnt.parent_nodeid);
+        if(elmnt.parent_nodeid!=0) cout<<"/";
+    }
+    cout<<elmnt.filename;
 }
 

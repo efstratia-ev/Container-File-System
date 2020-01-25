@@ -134,3 +134,8 @@ bool cfs_cd(cfs_file *f_info, char *arguments){
     f_info->setCurrentDir(dir);
     return true;
 }
+
+void cfs_pwd(cfs_file *f_info) {
+    f_info->print_directory(f_info->getCurrentDir());
+    cout<<endl;
+}

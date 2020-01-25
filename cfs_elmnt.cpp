@@ -6,6 +6,7 @@ cfs_elmnt::cfs_elmnt(unsigned int fnsz, char *const filename, unsigned int size,
     strcpy(this->filename,filename);
     this->size=size;
     this->type=type;
+    this->parent_nodeid=parentNodeid;
     this->creation_time=time;
     this->access_time=time;
     this->modification_time=time;

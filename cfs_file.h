@@ -69,6 +69,8 @@ public:
     bool dir_is_full(unsigned int id);
 
     int reset_timestamps(unsigned int id,bool a,bool m);
+
+    void print_directory(unsigned int id);
 };
 
 
