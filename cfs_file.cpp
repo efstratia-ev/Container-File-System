@@ -320,7 +320,10 @@ bool cfs_file::rm(unsigned int dir, bool i, bool r) {
                     else if(strcmp(opt,"no")==0) break;
                     else cout<<"You have to answer with yes or no"<<endl;
                 }
-                if(strcmp(opt,"yes")==0) set_empty_spot(dir);
+                if(strcmp(opt,"yes")==0){
+                    set_empty_spot(dir);
+                    return true;
+                }
             }
             else{
                 set_empty_spot(dir);
@@ -336,7 +339,7 @@ bool cfs_file::rm(unsigned int dir, bool i, bool r) {
         elmnt_offset=6*sizeof(unsigned int)+elmnt_offset*(element_size+max_file_size);
         elmnt.readfromfile(fd,elmnt_offset,filename_size);
         if(r && elmnt.type=='d' && rm(elmnt.nodeid,i,r)){
-            move_dir_element(dir,j,elements);
+            move_dir_element(dir,j,elements-1);
             elements--;
             continue;
         }
@@ -352,14 +355,14 @@ bool cfs_file::rm(unsigned int dir, bool i, bool r) {
                 }
                 if(strcmp(opt,"yes")==0){
                     set_empty_spot(elmnt.nodeid);
-                    move_dir_element(dir,j,elements);
+                    move_dir_element(dir,j,elements-1);
                     elements--;
                     continue;
                 }
             }
             else{
                 set_empty_spot(elmnt.nodeid);
-                move_dir_element(dir,j,elements);
+                move_dir_element(dir,j,elements-1);
                 elements--;
                 continue;
             }
@@ -379,7 +382,10 @@ bool cfs_file::rm(unsigned int dir, bool i, bool r) {
                 else if(strcmp(opt,"no")==0) break;
                 else cout<<"You have to answer with yes or no"<<endl;
             }
-            if(strcmp(opt,"yes")==0) set_empty_spot(dir);
+            if(strcmp(opt,"yes")==0){
+                set_empty_spot(dir);
+                return true;
+            }
         }
         else{
             set_empty_spot(dir);
@@ -404,7 +410,7 @@ void cfs_file::rm_file(unsigned int id) {
         }
         offset_spot+=sizeof(unsigned int)+filename_size;
     }
-    move_dir_element(current_dir,spot,elements);
+    move_dir_element(current_dir,spot,elements-1);
     elements--;
     pwrite(fd,&elements, sizeof(unsigned int),offset);
 }
