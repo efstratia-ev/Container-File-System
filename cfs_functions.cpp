@@ -168,11 +168,11 @@ int cfs_ls(cfs_file *f_info,char *arguments) {
     while(word){
         dest=true;
         if(!f_info->exists(word,f_info->getCurrentDir(),file_id)) continue;
-        else f_info->ls(file_id,a,r,l,u,d,h);
+        else f_info->ls(0,file_id,a,r,l,u,d,h);
         word=strtok(NULL," \t\n");
         cout<<endl;
     }
-    if(!dest) f_info->ls(f_info->getCurrentDir(),a,r,l,u,d,h);
+    if(!dest) f_info->ls(0,f_info->getCurrentDir(),a,r,l,u,d,h);
     return 0;
 }
 

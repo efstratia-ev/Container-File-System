@@ -74,7 +74,7 @@ public:
 
     void print_directory(unsigned int id);
 
-    bool ls(unsigned int dir,bool a,bool r,bool l, bool u,bool d,bool h);
+    bool ls(int level,unsigned int dir,bool a,bool r,bool l, bool u,bool d,bool h);
 
     bool rm(unsigned int dir,bool i,bool r);
 

@@ -67,6 +67,7 @@ void cfs_elmnt::ls() {
     if(type=='f') printf(ANSI_COLOR_RESET"%s\n",filename);
     else if(type=='d') printf(ANSI_COLOR_CYAN"%s\n",filename);
     else printf(ANSI_COLOR_MAGENTA"%s\n",filename);
+    printf(ANSI_COLOR_RESET);
 }
 
 void cfs_elmnt::ls_l() {
@@ -80,4 +81,5 @@ void cfs_elmnt::ls_l() {
     if(type=='f') printf(ANSI_COLOR_RESET"%u %s %u %s\t%s\t%s\n",nodeid,filename,size,ctime_str,atime_str,mtime_str);
     else if(type=='d') printf(ANSI_COLOR_CYAN"%u %s %u %s\t%s\t%s\n",nodeid,filename,size,ctime_str,atime_str,mtime_str);
     else printf(ANSI_COLOR_MAGENTA"%u %s %u %s\t%s\t%s\n",nodeid,filename,size,ctime_str,atime_str,mtime_str);
+    printf(ANSI_COLOR_RESET);
 }

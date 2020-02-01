@@ -257,18 +257,22 @@ void cfs_file::print_directory(unsigned int id) {
     cout<<elmnt.filename;
 }
 
-bool cfs_file::ls(unsigned int dir, bool a, bool r, bool l, bool u, bool d, bool h) {
+bool cfs_file::ls(int level,unsigned int dir, bool a, bool r, bool l, bool u, bool d, bool h) {
     int offset=6* sizeof(unsigned int)+dir*(element_size+max_file_size);
     cfs_elmnt *directory=new cfs_elmnt(filename_size);
     directory->readfromfile(fd,offset,filename_size);
     if(directory->type!='d') return false;
+    for(int lvl=0; lvl<level; lvl++) cout<<"\t";
     cout<<directory->filename<<":"<<endl;
     offset+=element_size;
     unsigned int elements;
     int elmnt_offset;
     pread(fd,&elements, sizeof(unsigned int),offset);
     offset+=sizeof(unsigned int);
-    if(elements==0) return true;
+    if(elements==0){
+        cout<<endl;
+        return true;
+    }
     cfs_elmnt **files=new cfs_elmnt*[elements];
     for(int i=0; i<elements; i++){
         files[i]=new cfs_elmnt(filename_size);
@@ -278,17 +282,19 @@ bool cfs_file::ls(unsigned int dir, bool a, bool r, bool l, bool u, bool d, bool
         offset+=sizeof(unsigned int)+filename_size;
     }
     if(!u) quickSort(files,0,elements-1);
-        for(int i=0; i<elements; i++){
-            if(!a && files[i]->filename[0]=='.') continue;
-            if(d && h && files[i]->type=='f') continue;
-            else if(d && files[i]->type!='d') continue;
-            else if(h && files[i]->type!='h') continue;
-            if(l) files[i]->ls_l();
-            else files[i]->ls();
-        }
+    for(int i=0; i<elements; i++){
+        if(!a && files[i]->filename[0]=='.') continue;
+        if(d && h && files[i]->type=='f') continue;
+        else if(d && files[i]->type!='d') continue;
+        else if(h && files[i]->type!='h') continue;
+        for(int lvl=0; lvl<level; lvl++) cout<<"\t";
+        if(l) files[i]->ls_l();
+        else files[i]->ls();
+    }
+    cout<<endl;
     if(r) {
         for (int i = 0; i < elements; i++) {
-            if (files[i]->type == 'd') ls(files[i]->nodeid, a, r, l, u, d, h);
+            if (files[i]->type == 'd') ls(level+1,files[i]->nodeid, a, r, l, u, d, h);
         }
     }
     for (int i = 0; i < elements; i++) delete files[i];
