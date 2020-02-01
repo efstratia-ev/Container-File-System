@@ -24,6 +24,8 @@ struct cfs_elmnt {
     void print();
     void readfromfile(int fd,int offset,unsigned int filename_size);
     void writetofile(int fd,int offset,unsigned int filename_size);
+    void ls();
+    void ls_l();
 };
 
 struct cfs_in_dir {

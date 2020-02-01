@@ -22,4 +22,7 @@ bool cfs_cd(cfs_file *f_info, char *arguments);
 
 void cfs_pwd(cfs_file *f_info);
 
+int cfs_ls(cfs_file *f_info,char *arguments);
+
+int cfs_rm(cfs_file *f_info,char *arguments);
 #endif

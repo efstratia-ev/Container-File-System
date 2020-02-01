@@ -54,9 +54,11 @@ public:
 
     unsigned int get_next_empty_spot();
 
+    void set_empty_spot(unsigned int spot);
+
     bool insert_directory(cfs_elmnt *in);
 
-    void insert_file(cfs_elmnt *in);
+    bool insert_file(cfs_elmnt *in);
 
     unsigned int get_directory_id(unsigned int parent_dir,char *dir_name);
 
@@ -71,6 +73,15 @@ public:
     int reset_timestamps(unsigned int id,bool a,bool m);
 
     void print_directory(unsigned int id);
+
+    bool ls(unsigned int dir,bool a,bool r,bool l, bool u,bool d,bool h);
+
+    bool rm(unsigned int dir,bool i,bool r);
+
+    void rm_file(unsigned int spot);
+
+    void move_dir_element(unsigned int dir, unsigned int spot, unsigned int element);
+
 };
 
 

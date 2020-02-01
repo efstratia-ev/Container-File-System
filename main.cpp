@@ -50,6 +50,22 @@ int main() {
         else if(strcmp(command,"cfs_pwd")==0){
             cfs_pwd(file);
         }
+        else if(strcmp(command,"cfs_touch")==0){
+            int error_code=0;
+            char *arguments=strtok(NULL,"\n");
+            if(!arguments || (error_code=cfs_touch(file,arguments))!=0){
+                if(error_code==-1) cout<<"this directory is full"<<endl;
+                else cout<<">Invalid Input."<<endl;
+            }
+        }
+        else if(strcmp(command,"cfs_ls")==0){
+            char *arguments=strtok(NULL,"\n");
+            cfs_ls(file,arguments);
+        }
+        else if(strcmp(command,"cfs_rm")==0){
+            char *arguments=strtok(NULL,"\n");
+            cfs_rm(file,arguments);
+        }
         else if(strcmp(command,"cfs_exit")==0){
             if(file)
                 delete file;

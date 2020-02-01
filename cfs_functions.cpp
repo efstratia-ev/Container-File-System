@@ -63,7 +63,6 @@ cfs_file *cfs_create(char *arguments) {
     file->info_init();
     //create root dir
     cfs_elmnt *ce=new cfs_elmnt(0,(char*)"/",0,'d',0,time(NULL));
-	ce->print();
 	file->insert_directory(ce);
 	delete ce;
     return file;
@@ -86,7 +85,7 @@ int cfs_touch(cfs_file *f_info,char *arguments) {
     while(word){
     	if(!f_info->exists(word,f_info->getCurrentDir(),file_id)){	//if the file doesnt exist create it
     		cfs_elmnt *ce=new cfs_elmnt(f_info->getFilenameSize(),word,0,'f',f_info->getCurrentDir(),time(NULL));
-			f_info->insert_file(ce); //den dineis thesi vriskei moni tis
+			if(!f_info->insert_file(ce)) return -1;
 			delete ce;
     	}
     	else{				//if the file exists alter its timestamps
@@ -138,4 +137,64 @@ bool cfs_cd(cfs_file *f_info, char *arguments){
 void cfs_pwd(cfs_file *f_info) {
     f_info->print_directory(f_info->getCurrentDir());
     cout<<endl;
+}
+
+int cfs_ls(cfs_file *f_info,char *arguments) {
+    char *word=strtok(arguments," \t");
+    unsigned int file_id=0;
+    bool a=false,r=false,l=false,u=false,d=false,h=false,dest=false;
+    while(word){
+        if(strcmp(word,"-a")==0){
+            a=true;
+        }
+        else if(strcmp(word,"-r")==0){
+            r=true;
+        }
+        else if(strcmp(word,"-l")==0){
+            l=true;
+        }
+        else if(strcmp(word,"-u")==0){
+            u=true;
+        }
+        else if(strcmp(word,"-d")==0){
+            d=true;
+        }
+        else if(strcmp(word,"-h")==0){
+            h=true;
+        }
+        else break;
+        word=strtok(NULL," \t");
+    }
+    while(word){
+        dest=true;
+        if(!f_info->exists(word,f_info->getCurrentDir(),file_id)) continue;
+        else f_info->ls(file_id,a,r,l,u,d,h);
+        word=strtok(NULL," \t\n");
+        cout<<endl;
+    }
+    if(!dest) f_info->ls(f_info->getCurrentDir(),a,r,l,u,d,h);
+    return 0;
+}
+
+int cfs_rm(cfs_file *f_info, char *arguments) {
+    char *word=strtok(arguments," \t");
+    unsigned int file_id=0;
+    bool i=false,r=false;
+    while(word){
+        if(strcmp(word,"-i")==0){
+            i=true;
+        }
+        else if(strcmp(word,"-r")==0){
+            r=true;
+        }
+        else break;
+        word=strtok(NULL," \t");
+    }
+    while(word){
+        if(f_info->exists(word,f_info->getCurrentDir(),file_id)){
+            if(f_info->rm(file_id,i,r)) f_info->rm_file(file_id);
+        }
+        word=strtok(NULL," \t\n");
+    }
+    return 0;
 }

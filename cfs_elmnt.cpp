@@ -1,6 +1,12 @@
 #include <unistd.h>
+#include <cstdio>
 #include "cfs_elmnt.h"
 
+#define ANSI_COLOR_MAGENTA "\x1b[35m"
+
+#define ANSI_COLOR_CYAN "\x1b[36m"
+
+#define ANSI_COLOR_RESET "\x1b[0m"
 
 cfs_elmnt::cfs_elmnt(unsigned int fnsz, char *const filename, unsigned int size, char type, unsigned int parentNodeid,time_t time):filename(new char[fnsz+1]){
     strcpy(this->filename,filename);
@@ -56,3 +62,22 @@ void cfs_elmnt::writetofile(int fd,int offset,unsigned int filename_size) {
 }
 
 cfs_elmnt::cfs_elmnt(unsigned int fnsz) :filename(new char[fnsz+1]){}
+
+void cfs_elmnt::ls() {
+    if(type=='f') printf(ANSI_COLOR_RESET"%s\n",filename);
+    else if(type=='d') printf(ANSI_COLOR_CYAN"%s\n",filename);
+    else printf(ANSI_COLOR_MAGENTA"%s\n",filename);
+}
+
+void cfs_elmnt::ls_l() {
+    char * ctime_str,*atime_str,*mtime_str;
+    ctime_str=ctime(&creation_time);
+    ctime_str[strlen(ctime_str)-1] = '\0';
+    atime_str=ctime(&access_time);
+    atime_str[strlen(atime_str)-1] = '\0';
+    mtime_str=ctime(&modification_time);
+    mtime_str[strlen(mtime_str)-1] = '\0';
+    if(type=='f') printf(ANSI_COLOR_RESET"%u %s %u %s\t%s\t%s\n",nodeid,filename,size,ctime_str,atime_str,mtime_str);
+    else if(type=='d') printf(ANSI_COLOR_CYAN"%u %s %u %s\t%s\t%s\n",nodeid,filename,size,ctime_str,atime_str,mtime_str);
+    else printf(ANSI_COLOR_MAGENTA"%u %s %u %s\t%s\t%s\n",nodeid,filename,size,ctime_str,atime_str,mtime_str);
+}
