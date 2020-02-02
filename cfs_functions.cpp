@@ -198,3 +198,45 @@ int cfs_rm(cfs_file *f_info, char *arguments) {
     }
     return 0;
 }
+
+bool cfs_ln(cfs_file *f_info,char *arguments){
+    char *org=strtok(arguments," \t");
+    char *lnk=strtok(NULL," \t");
+    unsigned int file_id;
+    bool success=false;
+    if(org && lnk){
+        if(!f_info->exists(org,f_info->getCurrentDir(),file_id))    //if the file doesnt exist there can be no link
+            cout<<">File doesnt exist thus there can be no link."<<endl;
+        else if(f_info->get_element_type(file_id)=='d')             //cant link a directory
+            cout<<">There can not be a link to a directory."<<endl;
+        else{               //if the file exists create link
+            cfs_elmnt *element=new cfs_elmnt(f_info->getFilenameSize(),lnk,0,'l',f_info->getCurrentDir(),time(NULL));
+            success=f_info->insert_link(element,file_id);
+            delete element;
+        }
+    }
+    return success;
+}
+
+bool cfs_cat(cfs_file *f_info,char *arguments){
+    char *or_fl=strtok(arguments," \t");
+    bool success=false;
+    unsigned int file_id;
+    while(or_fl && !strcmp(or_fl,"-o")){    //source files
+        //keep files in a list to retrieve their contents
+        or_fl=strtok(NULL," \t");
+    }
+    char *dest=strtok(arguments," \t\n");
+     cout<<dest<<endl;
+    if(!f_info->exists(dest,f_info->getCurrentDir(),file_id)){
+        cfs_elmnt *ce=new cfs_elmnt(f_info->getFilenameSize(),dest,0,'f',f_info->getCurrentDir(),time(NULL));
+        if(!f_info->insert_file(ce)){
+            cout<<">File could not be created."<<endl;
+            delete ce;
+            return false;
+        }
+        else success=true;
+    }
+    //copy data to dest
+    return success;
+}

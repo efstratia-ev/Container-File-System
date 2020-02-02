@@ -1,10 +1,13 @@
 #ifndef CFS_H
 #define CFS_H
 
+//#include <cstring>
+//#include <cstdio>
 #include <sys/types.h>
-#include <unistd.h>
+//#include <unistd.h>
 
 #include "cfs_elmnt.h"
+#include "QuickSort.h"
 
 using namespace std;
 
@@ -22,7 +25,7 @@ class cfs_file{
 public:
     cfs_file(int fd);
 
-    void set_info(unsigned int block_size=1024,unsigned int filename_size=20,unsigned int max_file_size=1024,unsigned int max_dir_file_number=50);
+    void set_info(unsigned int block_size=1024,unsigned int filename_size=20,unsigned int max_file_size=1024,unsigned int max_dir_file_number=20);
 
     ~cfs_file();
 
@@ -59,6 +62,8 @@ public:
     bool insert_directory(cfs_elmnt *in);
 
     bool insert_file(cfs_elmnt *in);
+
+    bool insert_link(cfs_elmnt *in,unsigned int file_id);
 
     unsigned int get_directory_id(unsigned int parent_dir,char *dir_name);
 

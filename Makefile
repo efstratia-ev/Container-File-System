@@ -1,7 +1,7 @@
 all: cfs
 
-cfs: main.o cfs_functions.o cfs_file.o cfs_elmnt.o various.o
-	g++ main.o cfs_functions.o cfs_file.o cfs_elmnt.o various.o -o cfs
+cfs: main.o cfs_functions.o cfs_file.o QuickSort.o cfs_elmnt.o various.o
+	g++ main.o cfs_functions.o cfs_file.o QuickSort.o cfs_elmnt.o various.o -o cfs
 
 various.o: various.cpp various.h
 	g++ -c various.cpp
@@ -9,8 +9,11 @@ various.o: various.cpp various.h
 cfs_elmnt.o: cfs_elmnt.cpp cfs_elmnt.h
 	g++ -c cfs_elmnt.cpp
 
+QuickSort.o: QuickSort.cpp QuickSort.h
+	g++ -c QuickSort.cpp cfs_elmnt.cpp
+
 cfs_file.o: cfs_file.cpp cfs_file.h
-	g++ -c cfs_file.cpp cfs_elmnt.cpp
+	g++ -c cfs_file.cpp QuickSort.cpp
 
 cfs_functions.o: cfs_functions.cpp cfs_functions.h
 	g++ -c cfs_functions.cpp cfs_file.cpp various.cpp

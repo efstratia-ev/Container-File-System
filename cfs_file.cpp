@@ -1,7 +1,5 @@
-#include <cstring>
-#include <cstdio>
 #include "cfs_file.h"
-#include "QuickSort.h"
+
 //CFS FILE
 cfs_file::cfs_file(int fd) {
     this->fd=fd;
@@ -47,7 +45,7 @@ void cfs_file::setMaxDirFileNumber(unsigned int maxDirFileNumber) {
 
 int cfs_file::get_relative_path_dir(char *rel_path, unsigned int id) {
     char *dir=strtok(rel_path,"/");
-    unsigned int offset=4*sizeof(unsigned int)+id*(sizeof(cfs_elmnt)+max_file_size)+sizeof(cfs_elmnt);
+    unsigned int offset=6*sizeof(unsigned int)+id*(element_size+max_file_size)+element_size;
     unsigned int size;
     int next_id=-1;
     pread(fd,&size,sizeof(unsigned int),offset);
@@ -68,7 +66,7 @@ int cfs_file::get_relative_path_dir(char *rel_path, unsigned int id) {
 void cfs_file::info_init(){
     pwrite(fd,&element_number,sizeof(unsigned int),0);
     pwrite(fd,&empty_spot,sizeof(unsigned int),sizeof(unsigned int));
-	pwrite(fd,&max_file_size,sizeof(unsigned int),2*sizeof(unsigned int));
+	pwrite(fd,&block_size,sizeof(unsigned int),2*sizeof(unsigned int));
 	pwrite(fd,&filename_size,sizeof(unsigned int),3*sizeof(unsigned int));
 	pwrite(fd,&max_file_size,sizeof(unsigned int),4*sizeof(unsigned int));
 	pwrite(fd,&max_dir_file_number,sizeof(unsigned int),5*sizeof(unsigned int));
@@ -77,7 +75,7 @@ void cfs_file::info_init(){
 void cfs_file::get_info(){
     pread(fd,&element_number,sizeof(unsigned int),0);
     pread(fd,&empty_spot,sizeof(unsigned int),sizeof(unsigned int));
-    pread(fd,&max_file_size,sizeof(unsigned int),2*sizeof(unsigned int));
+    pread(fd,&block_size,sizeof(unsigned int),2*sizeof(unsigned int));
     pread(fd,&filename_size,sizeof(unsigned int),3*sizeof(unsigned int));
     pread(fd,&max_file_size,sizeof(unsigned int),4*sizeof(unsigned int));
     pread(fd,&max_dir_file_number,sizeof(unsigned int),5*sizeof(unsigned int));
@@ -120,7 +118,7 @@ unsigned int cfs_file::insert_element(cfs_elmnt *in){
     offset=6*sizeof(unsigned int)+parent*(element_size+max_file_size);
     cfs_elmnt *elmnt=new cfs_elmnt(filename_size);
     elmnt->readfromfile(fd,offset,filename_size);
-    elmnt->size+=1;
+    elmnt->size++;
     elmnt->writetofile(fd,offset,filename_size);
     delete elmnt;
     offset=6*sizeof(unsigned int)+parent*(element_size+max_file_size)+element_size;
@@ -178,6 +176,14 @@ bool cfs_file::insert_directory(cfs_elmnt *in) {
 bool cfs_file::insert_file(cfs_elmnt *in) {
     if(element_number>0 && (dir_is_full(in->parent_nodeid))) return false;
     unsigned int spot=insert_element(in);
+    return true;
+}
+
+bool cfs_file::insert_link(cfs_elmnt *in,unsigned int file_id) {
+    if(element_number>0 && (dir_is_full(in->parent_nodeid))) return false;
+    unsigned int spot=insert_element(in);
+    int offset=6*sizeof(unsigned int)+spot*(element_size+max_file_size)+element_size;
+    pwrite(fd,&file_id,sizeof(unsigned int),offset);
     return true;
 }
 
@@ -286,7 +292,7 @@ bool cfs_file::ls(int level,unsigned int dir, bool a, bool r, bool l, bool u, bo
         if(!a && files[i]->filename[0]=='.') continue;
         if(d && h && files[i]->type=='f') continue;
         else if(d && files[i]->type!='d') continue;
-        else if(h && files[i]->type!='h') continue;
+        else if(h && files[i]->type!='h') continue;     //TODO: h doesnt print links
         for(int lvl=0; lvl<level; lvl++) cout<<"\t";
         if(l) files[i]->ls_l();
         else files[i]->ls();

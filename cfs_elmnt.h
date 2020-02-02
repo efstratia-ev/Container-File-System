@@ -1,8 +1,10 @@
 #ifndef CFS_ELMNT_H
 #define CFS_ELMNT_H
 
+#include <cstdio>
 #include <iostream>
 #include <cstring>
+#include <unistd.h>
 #include <time.h>
 
 using namespace std;

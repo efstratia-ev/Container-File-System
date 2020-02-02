@@ -1,8 +1,8 @@
 #ifndef CFS_FUNCTIONS_H
 #define CFS_FUNCTIONS_H
-#include <cstring>
+//#include <cstring>
 #include <fcntl.h>
-#include <unistd.h>
+//#include <unistd.h>
 #include <cstdlib>
 
 #include "cfs_file.h"
@@ -25,4 +25,8 @@ void cfs_pwd(cfs_file *f_info);
 int cfs_ls(cfs_file *f_info,char *arguments);
 
 int cfs_rm(cfs_file *f_info,char *arguments);
+
+bool cfs_ln(cfs_file *f_info,char *arguments);
+
+bool cfs_cat(cfs_file *f_info,char *arguments);
 #endif
