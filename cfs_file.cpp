@@ -43,16 +43,23 @@ void cfs_file::setMaxDirFileNumber(unsigned int maxDirFileNumber) {
     max_dir_file_number = maxDirFileNumber;
 }
 
-int cfs_file::get_relative_path_dir(char *rel_path, unsigned int id) {
-    char *dir=strtok(rel_path,"/");
+unsigned int cfs_file::get_relative_path_dir(char *rel_path, unsigned int id) {
+    char *dir=rel_path;
+    for(int i=0; i<strlen(dir); i++){
+        if(dir[i]=='/'){
+            dir = strtok(rel_path, NULL);
+            break;
+        }
+    }
+    if(!dir) return id;
     unsigned int offset=6*sizeof(unsigned int)+id*(element_size+max_file_size)+element_size;
     unsigned int size;
     int next_id=-1;
     pread(fd,&size,sizeof(unsigned int),offset);
     offset+=sizeof(unsigned int);
-    char directory[filename_size];
+    char directory[filename_size+1];
     for(unsigned int i=0; i<size; i++){
-        pread(fd,&directory,filename_size,offset);
+        pread(fd,directory,filename_size,offset);
         if(strcmp(dir,directory)==0){
             pread(fd,&next_id,sizeof(unsigned int),offset);
             break;
@@ -60,7 +67,7 @@ int cfs_file::get_relative_path_dir(char *rel_path, unsigned int id) {
         offset+=max_file_size+sizeof(unsigned int);
     }
     if(next_id==-1) return -1;
-    return get_relative_path_dir(strtok(NULL,"\0"),next_id);
+    return get_relative_path_dir(strtok(NULL,"\n"),next_id);
 }
 
 void cfs_file::info_init(){
@@ -164,13 +171,13 @@ void cfs_file::set_empty_spot(unsigned int spot) {
     pwrite(fd,&element_number,sizeof(unsigned int),0);
 }
 
-bool cfs_file::insert_directory(cfs_elmnt *in) {
+unsigned int  cfs_file::insert_directory(cfs_elmnt *in) {
 	unsigned int none;
-    if(element_number>0 && (dir_is_full(in->parent_nodeid) || exists(in->filename,in->parent_nodeid,none))) return false;
+    if(element_number>0 && (dir_is_full(in->parent_nodeid) || exists(in->filename,in->parent_nodeid,none))) return 0;
     unsigned int elements=0,spot=insert_element(in);
     int offset=6*sizeof(unsigned int)+spot*(element_size+max_file_size)+element_size;
     pwrite(fd,&elements,sizeof(unsigned int),offset);
-    return true;
+    return spot;
 }
 
 bool cfs_file::insert_file(cfs_elmnt *in) {
@@ -292,7 +299,7 @@ bool cfs_file::ls(int level,unsigned int dir, bool a, bool r, bool l, bool u, bo
         if(!a && files[i]->filename[0]=='.') continue;
         if(d && h && files[i]->type=='f') continue;
         else if(d && files[i]->type!='d') continue;
-        else if(h && files[i]->type!='h') continue;     //TODO: h doesnt print links
+        else if(h && files[i]->type!='l') continue;
         for(int lvl=0; lvl<level; lvl++) cout<<"\t";
         if(l) files[i]->ls_l();
         else files[i]->ls();
@@ -438,6 +445,298 @@ void cfs_file::move_dir_element(unsigned int dir, unsigned int spot, unsigned in
     pwrite(fd,&id,sizeof(unsigned int),offset);
     pwrite(fd,filename,filename_size,offset+sizeof(unsigned int));
     delete[] filename;
+}
+
+bool cfs_file::cp(unsigned int source, unsigned int dest_id, bool r, bool i, bool l, bool R) {
+    int source_offset = 6 * sizeof(unsigned int) + source * (element_size + max_file_size);
+    int destination_offset = 6 * sizeof(unsigned int) + dest_id * (element_size + max_file_size);
+    cfs_elmnt *directory = new cfs_elmnt(filename_size);
+    directory->readfromfile(fd, destination_offset, filename_size);
+    if (directory->type != 'd') return false;
+    cfs_elmnt *src = new cfs_elmnt(filename_size);
+    src->readfromfile(fd, source_offset, filename_size);
+    src->parent_nodeid = directory->nodeid;
+    unsigned int dir;
+    if(src->type=='f'){
+        if(i) {
+            char opt[4];
+            while (true) {
+                cout << "Are you sure you want to copy item "<<src->filename<< " to directory " << directory->filename << "?(yes/no): ";
+                scanf("%3s", opt);
+                if (strcmp(opt, "yes") == 0) break;
+                else if (strcmp(opt, "no") == 0) break;
+                else cout << "You have to answer with yes or no" << endl;
+            }
+            if (strcmp(opt, "yes") == 0) {
+                if(l){
+                    src->type='l';
+                    insert_link(src,src->nodeid);
+                }
+                insert_file(src);
+                return true;
+            }
+            return true;
+        }
+        if(l){
+            src->type='l';
+            insert_link(src,src->nodeid);
+        }
+        insert_file(src);
+        return true;
+    }
+    else if(src->type=='d'){
+        if(i) {
+            char opt[4];
+            while (true) {
+                cout << "Are you sure you want to copy item "<<src->filename<< " to directory " << directory->filename << "?(yes/no): ";
+                scanf("%3s", opt);
+                if (strcmp(opt, "yes") == 0) break;
+                else if (strcmp(opt, "no") == 0) break;
+                else cout << "You have to answer with yes or no" << endl;
+            }
+            if (strcmp(opt, "yes") == 0) {
+                if(l){
+                    src->type='l';
+                    insert_link(src,src->nodeid);
+                }
+                dir=insert_directory(src);
+            }
+            else return true;
+        }
+        else {
+            if (l) {
+                src->type = 'l';
+                insert_link(src, src->nodeid);
+            }
+            dir = insert_directory(src);
+        }
+    }
+    else{
+        if(i) {
+            char opt[4];
+            while (true) {
+                cout << "Are you sure you want to copy item "<<src->filename<< " to directory " << directory->filename << "?(yes/no): ";
+                scanf("%3s", opt);
+                if (strcmp(opt, "yes") == 0) break;
+                else if (strcmp(opt, "no") == 0) break;
+                else cout << "You have to answer with yes or no" << endl;
+            }
+            if (strcmp(opt, "yes") == 0) {
+                unsigned int file_id;
+                int offset = 6 * sizeof(unsigned int) + source * (element_size + max_file_size) + element_size;
+                pread(fd, &file_id, sizeof(unsigned int), offset);
+                insert_link(src, file_id);
+                return true;
+            }
+            return true;
+        }
+        unsigned int file_id;
+        int offset = 6 * sizeof(unsigned int) + source * (element_size + max_file_size) + element_size;
+        pread(fd, &file_id, sizeof(unsigned int), offset);
+        insert_link(src, file_id);
+        return true;
+    }
+    if(!r && !R) return true;
+
+    source_offset += element_size;
+    unsigned int elements;
+    int elmnt_offset;
+    pread(fd, &elements, sizeof(unsigned int), source_offset);
+    source_offset += sizeof(unsigned int);
+    if (elements == 0) {
+        cout << endl;
+        return true;
+    }
+    cfs_elmnt file(filename_size);
+    for (int i = 0; i < elements; i++) {
+        pread(fd, &elmnt_offset, sizeof(unsigned int), source_offset);
+        elmnt_offset = 6 * sizeof(unsigned int) + elmnt_offset * (element_size + max_file_size);
+        file.readfromfile(fd, elmnt_offset, filename_size);
+        if(l) cp(file.nodeid, dest_id, false, i, l, R);
+        else cp(file.nodeid, dir, false, i, l, R);
+        source_offset += sizeof(unsigned int) + filename_size;
+    }
+    return true;
+}
+
+bool cfs_file::cp(unsigned int source, char *destination, bool r, bool i, bool l, bool R) {
+    int source_offset=6* sizeof(unsigned int)+source*(element_size+max_file_size);
+    int destination_offset;
+    unsigned int dest_id;
+    if(destination[0]=='/') dest_id=get_relative_path_dir(destination+1,0);
+    if(!exists(destination,current_dir,dest_id)) return false;
+    destination_offset=6* sizeof(unsigned int)+dest_id*(element_size+max_file_size);
+    cfs_elmnt *directory=new cfs_elmnt(filename_size);
+    directory->readfromfile(fd,destination_offset,filename_size);
+    if(directory->type!='d') return false;
+    cfs_elmnt *src=new cfs_elmnt(filename_size);
+    src->readfromfile(fd,source_offset,filename_size);
+    src->parent_nodeid=directory->nodeid;
+    unsigned int dir;
+    if(src->type=='f'){
+        if(i) {
+            char opt[4];
+            while (true) {
+                cout << "Are you sure you want to copy item "<<src->filename<< " to directory " << directory->filename << "?(yes/no): ";
+                scanf("%3s", opt);
+                if (strcmp(opt, "yes") == 0) break;
+                else if (strcmp(opt, "no") == 0) break;
+                else cout << "You have to answer with yes or no" << endl;
+            }
+            if (strcmp(opt, "yes") == 0) {
+                if(l){
+                    src->type='l';
+                    insert_link(src,src->nodeid);
+                }
+                insert_file(src);
+                return true;
+            }
+            return true;
+        }
+        if(l){
+            src->type='l';
+            insert_link(src,src->nodeid);
+        }
+        insert_file(src);
+        return true;
+    }
+    else if(src->type=='d'){
+        if(i) {
+            char opt[4];
+            while (true) {
+                cout << "Are you sure you want to copy item "<<src->filename<< " to directory " << directory->filename << "?(yes/no): ";
+                scanf("%3s", opt);
+                if (strcmp(opt, "yes") == 0) break;
+                else if (strcmp(opt, "no") == 0) break;
+                else cout << "You have to answer with yes or no" << endl;
+            }
+            if (strcmp(opt, "yes") == 0) {
+                if(l){
+                    src->type='l';
+                    insert_link(src,src->nodeid);
+                }
+                dir=insert_directory(src);
+                if(dir==0) return false;
+            }
+            else return true;
+        }
+        else {
+            if (l) {
+                src->type = 'l';
+                insert_link(src, src->nodeid);
+            }
+            dir = insert_directory(src);
+            if(dir==0) return false;
+        }
+    }
+    else{
+        if(i) {
+            char opt[4];
+            while (true) {
+                cout << "Are you sure you want to copy item "<<src->filename<< " to directory " << directory->filename << "?(yes/no): ";
+                scanf("%3s", opt);
+                if (strcmp(opt, "yes") == 0) break;
+                else if (strcmp(opt, "no") == 0) break;
+                else cout << "You have to answer with yes or no" << endl;
+            }
+            if (strcmp(opt, "yes") == 0) {
+                unsigned int file_id;
+                int offset = 6 * sizeof(unsigned int) + source * (element_size + max_file_size) + element_size;
+                pread(fd, &file_id, sizeof(unsigned int), offset);
+                insert_link(src, file_id);
+                return true;
+            }
+            return true;
+        }
+        unsigned int file_id;
+        int offset = 6 * sizeof(unsigned int) + source * (element_size + max_file_size) + element_size;
+        pread(fd, &file_id, sizeof(unsigned int), offset);
+        insert_link(src, file_id);
+        return true;
+    }
+    if(!r && !R) return true;
+
+    source_offset+=element_size;
+    unsigned int elements;
+    int elmnt_offset;
+    pread(fd,&elements, sizeof(unsigned int),source_offset);
+    source_offset+=sizeof(unsigned int);
+    if(elements==0){
+        cout<<endl;
+        return true;
+    }
+    cfs_elmnt file(filename_size);
+    for(int j=0; j<elements; j++){
+        pread(fd,&elmnt_offset,sizeof(unsigned int),source_offset);
+        elmnt_offset=6*sizeof(unsigned int)+elmnt_offset*(element_size+max_file_size);
+        file.readfromfile(fd,elmnt_offset,filename_size);
+        if(l) cp(file.nodeid,dest_id,false,i,l,R);
+        else cp(file.nodeid,dir,false,i,l,R);
+        source_offset+=sizeof(unsigned int)+filename_size;
+    }
+    return true;
+}
+
+bool cfs_file::rename(char *source, char *dest) {
+    if(strcmp(source,"/")==0) return false;
+    if(strcmp(dest,"/")==0) return false;
+    unsigned int src=0,elements;
+    int offset=6*sizeof(unsigned int)+current_dir*(element_size+max_file_size)+element_size;
+    pread(fd,&elements,sizeof(unsigned int),offset);
+    offset+=sizeof(unsigned int);
+    int keep_offset;
+    unsigned int id;
+    char *filename=new char[filename_size+1];
+    for(int i=0; i<elements; i++){
+        pread(fd,&id,sizeof(unsigned int),offset);
+        offset+=sizeof(unsigned int);
+        pread(fd,filename,filename_size,offset);
+        if(strcmp(source,filename)==0){
+            src=id;
+            keep_offset=offset;
+        }
+        if(strcmp(dest,filename)==0) return false;
+        offset+=filename_size;
+    }
+
+    if(src==0) return false;
+
+    offset=6*sizeof(unsigned int)+src*(element_size+max_file_size);
+    cfs_elmnt a(filename_size);
+    a.readfromfile(fd,offset,filename_size);
+    strcpy(a.filename,dest);
+    a.writetofile(fd,offset,filename_size);
+    pwrite(fd,a.filename,filename_size,keep_offset);
+
+    delete[] filename;
+    return true;
+}
+
+bool cfs_file::mv(char *source, char *dest, bool i) {
+    unsigned int src;
+    if(!exists(source,current_dir,src)) return false;
+
+    if(i) {
+        char opt[4];
+        while (true) {
+            cout << "Are you sure you want to move item "<<source<< " to directory " << dest << "?(yes/no): ";
+            scanf("%3s", opt);
+            if (strcmp(opt, "yes") == 0) break;
+            else if (strcmp(opt, "no") == 0) break;
+            else cout << "You have to answer with yes or no" << endl;
+        }
+        if (strcmp(opt, "yes") == 0) {
+            cp(src,dest,false,false,false,true);
+            rm(src,false,true);
+            return true;
+        }
+        return true;
+    }
+    else{
+        cp(src,dest,false,false,false,true);
+        rm(src,false,true);
+    }
+    return true;
 }
 
 

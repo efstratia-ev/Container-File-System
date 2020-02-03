@@ -1,4 +1,5 @@
 #include "cfs_functions.h"
+#include "src_dest.h"
 
 cfs_file *cfs_workwith(char *filename) {
     int len=strlen(filename);
@@ -239,4 +240,65 @@ bool cfs_cat(cfs_file *f_info,char *arguments){
     }
     //copy data to dest
     return success;
+}
+
+bool cfs_cp(cfs_file *f_info, char *arguments) {
+    char *word;
+    if(arguments[0]=='-') word=strtok(arguments," \t");
+    else word=arguments;
+    unsigned int file_id=0;
+    bool i=false,r=false,l=false,R=false;
+    while(word){
+        if(strcmp(word,"-i")==0){
+            i=true;
+        }
+        else if(strcmp(word,"-r")==0){
+            r=true;
+        }
+        else if(strcmp(word,"-l")==0){
+            l=true;
+        }
+        else if(strcmp(word,"-R")==0){
+            R=true;
+        }
+        else break;
+        arguments=strtok(NULL,"\n");
+        if(arguments[0]=='-') word=strtok(NULL," \t");
+        else word=arguments;
+    }
+    src_dest *INFO=new src_dest(word);
+    char *dest=INFO->get_dest(),*source;
+    unsigned int id;
+    while((source=INFO->get_source())){
+        if(!f_info->exists(source,f_info->getCurrentDir(),id)) continue;
+        f_info->cp(id,dest,r,i,l,R);
+        delete[] source;
+    }
+    return true;
+}
+
+bool cfs_mv(cfs_file *f_info, char *arguments) {
+    char *word;
+    if(arguments[0]=='-') word=strtok(arguments," \t");
+    else word=arguments;
+    bool i=false;
+    while(word){
+        if(strcmp(word,"-i")==0){
+            i=true;
+        }
+        else break;
+        arguments=strtok(NULL,"\n");
+        if(arguments[0]=='-') word=strtok(NULL," \t");
+        else word=arguments;
+    }
+    src_dest *INFO=new src_dest(word);
+    char *dest=INFO->get_dest(),*source;
+    unsigned int id;
+    if(INFO->rename())
+        return f_info->rename(INFO->get_source(),dest);
+    while((source=INFO->get_source())){
+        f_info->mv(source,dest,i);
+        delete[] source;
+    }
+    return true;
 }

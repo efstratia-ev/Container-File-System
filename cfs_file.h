@@ -41,7 +41,7 @@ public:
 
     void setMaxDirFileNumber(unsigned int maxDirFileNumber);
 
-    int get_relative_path_dir(char *rel_path,unsigned int id);
+    unsigned int get_relative_path_dir(char *rel_path,unsigned int id);
 
     void info_init();
 
@@ -59,7 +59,7 @@ public:
 
     void set_empty_spot(unsigned int spot);
 
-    bool insert_directory(cfs_elmnt *in);
+    unsigned int insert_directory(cfs_elmnt *in);
 
     bool insert_file(cfs_elmnt *in);
 
@@ -86,6 +86,14 @@ public:
     void rm_file(unsigned int spot);
 
     void move_dir_element(unsigned int dir, unsigned int spot, unsigned int element);
+
+    bool cp(unsigned int source,unsigned int dest_id,bool r,bool i,bool l,bool R);
+
+    bool cp(unsigned int source, char * destination,bool r,bool i,bool l,bool R);
+
+    bool rename(char *source,char *dest);
+
+    bool mv(char *source,char *dest,bool i);
 
 };
 

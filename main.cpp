@@ -32,7 +32,6 @@ int main() {
                 strcpy(fn,filename);
                 fn[sizeof(filename)]='\0';
                 strcpy(fn,filename);
-            	file->print();
             }
         }
         else if(strcmp(command,"cfs_create")==0){   //CREATE
@@ -40,6 +39,12 @@ int main() {
             char *arguments=strtok(NULL,"\n");
             if(!arguments || !(file=cfs_create(arguments))){
                 cout<<">Invalid Input."<<endl;
+            }
+            else{
+                fn=new char[sizeof(arguments)+1];
+                strcpy(fn,arguments);
+                fn[sizeof(arguments)]='\0';
+                strcpy(fn,arguments);
             }
         }
         else if(strcmp(command,"cfs_mkdir")==0 && file){    //MKDIR
@@ -77,9 +82,19 @@ int main() {
             char *arguments=strtok(NULL,"\n");
             cfs_ln(file,arguments);
         }
-        else if(strcmp(command,"cfs_cat")==0){       //LN
+        else if(strcmp(command,"cfs_cat")==0){       //CAT
             char *arguments=strtok(NULL,"\n");
             cfs_cat(file,arguments);
+        }
+        else if(strcmp(command,"cfs_cp")==0){       //CP
+            char *arguments=strtok(NULL,"\n");
+            cfs_cp(file,arguments);
+        }
+        else if(strcmp(command,"cfs_mv")==0){       //CP
+            char *arguments=strtok(NULL,"\n");
+            if(!cfs_mv(file,arguments)){
+                cout<<"invalid input"<<endl;
+            }
         }
         else if(strcmp(command,"cfs_exit")==0){     //EXIT
             if(file){
