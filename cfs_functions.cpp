@@ -1,5 +1,4 @@
 #include "cfs_functions.h"
-#include "src_dest.h"
 
 cfs_file *cfs_workwith(char *filename) {
     int len=strlen(filename);

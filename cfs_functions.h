@@ -1,12 +1,12 @@
 #ifndef CFS_FUNCTIONS_H
 #define CFS_FUNCTIONS_H
-//#include <cstring>
+
 #include <fcntl.h>
-//#include <unistd.h>
 #include <cstdlib>
 
 #include "cfs_file.h"
 #include "various.h"
+#include "src_dest.h"
 
 using namespace std;
 

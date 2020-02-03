@@ -1,4 +1,3 @@
-#include <dirent.h>
 #include "cfs_file.h"
 
 //CFS FILE
