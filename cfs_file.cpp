@@ -45,12 +45,6 @@ void cfs_file::setMaxDirFileNumber(unsigned int maxDirFileNumber) {
 
 unsigned int cfs_file::get_relative_path_dir(char *rel_path, unsigned int id) {
     char *dir=rel_path;
-    for(int i=0; i<strlen(dir); i++){
-        if(dir[i]=='/'){
-            dir = strtok(rel_path, NULL);
-            break;
-        }
-    }
     if(!dir) return id;
     unsigned int offset=6*sizeof(unsigned int)+id*(element_size+max_file_size)+element_size;
     unsigned int size;
@@ -563,7 +557,10 @@ bool cfs_file::cp(unsigned int source, char *destination, bool r, bool i, bool l
     int source_offset=6* sizeof(unsigned int)+source*(element_size+max_file_size);
     int destination_offset;
     unsigned int dest_id;
-    if(destination[0]=='/') dest_id=get_relative_path_dir(destination+1,0);
+    if(destination[0]=='/'){
+        destination=strtok(destination,"/");
+        dest_id=get_relative_path_dir(destination,0);
+    }
     if(!exists(destination,current_dir,dest_id)) return false;
     destination_offset=6* sizeof(unsigned int)+dest_id*(element_size+max_file_size);
     cfs_elmnt *directory=new cfs_elmnt(filename_size);
@@ -728,13 +725,15 @@ bool cfs_file::mv(char *source, char *dest, bool i) {
         if (strcmp(opt, "yes") == 0) {
             cp(src,dest,false,false,false,true);
             rm(src,false,true);
+            rm_file(src);
             return true;
         }
         return true;
     }
     else{
-        cp(src,dest,false,false,false,true);
+        cp(src,dest,true,false,false,false);
         rm(src,false,true);
+        rm_file(src);
     }
     return true;
 }
