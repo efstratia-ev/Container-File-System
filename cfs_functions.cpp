@@ -302,3 +302,19 @@ bool cfs_mv(cfs_file *f_info, char *arguments) {
     }
     return true;
 }
+
+bool cfs_import(cfs_file *f_info, char *arguments) {
+    char *word;
+    if(arguments[0]=='-') word=strtok(arguments," \t");
+    else word=arguments;
+    unsigned int file_id=0;
+
+    src_dest *INFO=new src_dest(word);
+    char *dest=INFO->get_dest(),*source;
+    unsigned int id;
+    while((source=INFO->get_source())){
+        f_info->import_file(source,dest);
+        delete[] source;
+    }
+    return true;
+}

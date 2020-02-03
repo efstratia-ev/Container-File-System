@@ -1,3 +1,4 @@
+#include <dirent.h>
 #include "cfs_file.h"
 
 //CFS FILE
@@ -561,7 +562,7 @@ bool cfs_file::cp(unsigned int source, char *destination, bool r, bool i, bool l
         destination=strtok(destination,"/");
         dest_id=get_relative_path_dir(destination,0);
     }
-    if(!exists(destination,current_dir,dest_id)) return false;
+    else if(!exists(destination,current_dir,dest_id)) return false;
     destination_offset=6* sizeof(unsigned int)+dest_id*(element_size+max_file_size);
     cfs_elmnt *directory=new cfs_elmnt(filename_size);
     directory->readfromfile(fd,destination_offset,filename_size);
@@ -734,6 +735,53 @@ bool cfs_file::mv(char *source, char *dest, bool i) {
         cp(src,dest,true,false,false,false);
         rm(src,false,true);
         rm_file(src);
+    }
+    return true;
+}
+
+bool cfs_file::import_file(char *path, char *destination) {
+    DIR *d = opendir(path);    //check every file that exists inside directory path
+    struct dirent *dir;
+    unsigned int dest_id;
+    if(destination[0]=='/'){
+        destination=strtok(destination,"/");
+        dest_id=get_relative_path_dir(destination,0);
+    }
+    else if(!exists(destination,current_dir,dest_id)) return false;
+    if (d){
+        while ((dir = readdir(d))){
+           if(dir->d_type==DT_DIR){
+               cfs_elmnt *ce=new cfs_elmnt(getFilenameSize(),dir->d_name,0,'d',dest_id,time(NULL));
+               unsigned int n_dir=insert_directory(ce);
+               char *new_path=new char[strlen(path)+strlen(dir->d_name)+2];
+               sprintf(new_path,"%s/%s",path,dir->d_name);
+               import_file(new_path,n_dir);
+           }
+           else{
+               cfs_elmnt *ce=new cfs_elmnt(getFilenameSize(),dir->d_name,0,'f',dest_id,time(NULL));
+               insert_file(ce);
+           }
+        }
+        closedir(d);
+    }
+    return true;
+}
+
+bool cfs_file::import_file(char *path, unsigned int dest_id) {
+    DIR *d = opendir(path);    //check every file that exists inside directory path
+    struct dirent *dir;
+    if (d){
+        while ((dir = readdir(d))){
+            if(dir->d_type==DT_DIR){
+                cfs_elmnt *ce=new cfs_elmnt(getFilenameSize(),dir->d_name,0,'d',dest_id,time(NULL));
+                unsigned int n_dir=insert_directory(ce);
+            }
+            else{
+                cfs_elmnt *ce=new cfs_elmnt(getFilenameSize(),dir->d_name,0,'f',dest_id,time(NULL));
+                insert_file(ce);
+            }
+        }
+        closedir(d);
     }
     return true;
 }

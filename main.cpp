@@ -90,6 +90,10 @@ int main() {
             char *arguments=strtok(NULL,"\n");
             cfs_cp(file,arguments);
         }
+        else if(strcmp(command,"cfs_import")==0){       //import
+            char *arguments=strtok(NULL,"\n");
+            cfs_import(file,arguments);
+        }
         else if(strcmp(command,"cfs_mv")==0){       //CP
             char *arguments=strtok(NULL,"\n");
             if(!cfs_mv(file,arguments)){

@@ -95,6 +95,9 @@ public:
 
     bool mv(char *source,char *dest,bool i);
 
+    bool import_file(char *path,char *directory);
+
+    bool import_file(char *path,unsigned int dest_id);
 };
 
 

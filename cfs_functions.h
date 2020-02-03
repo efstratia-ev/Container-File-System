@@ -33,4 +33,7 @@ bool cfs_cat(cfs_file *f_info,char *arguments);
 bool cfs_cp(cfs_file *f_info,char *arguments);
 
 bool cfs_mv(cfs_file *f_info,char *arguments);
+
+bool cfs_import(cfs_file *f_info, char *arguments);
+
 #endif
